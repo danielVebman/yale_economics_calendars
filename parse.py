@@ -1,13 +1,13 @@
-import pandas as pd
-import requests
-from bs4 import BeautifulSoup
-import regex as re
 import datetime as dt
+from bs4 import BeautifulSoup
+import pandas as pd
+import regex as re
 
 
 def extract_events(html_content: str) -> pd.DataFrame:
     '''
     Parses the HTML content to extract event data into a pandas DataFrame.
+    Errors are thrown and should be handled upstream.
     '''
     soup = BeautifulSoup(html_content, 'html.parser')
     event_data = []
@@ -41,13 +41,10 @@ def extract_events(html_content: str) -> pd.DataFrame:
         # Extract time
         if time_tag := article.find('div', class_='node-teaser__event-date-additional'):
             time_text = time_tag.get_text(strip=True).replace('Time:', '').strip()
-            try:
-                data['start_time'], data['end_time'] = [
-                    dt.datetime.strptime(p.strip(), '%I:%M %p').time() 
-                    for p in time_range_string.split('—')
-                ]
-            except:
-                data['start_time'], data['end_time'] = (None, None)
+            data['start_time'], data['end_time'] = [
+                dt.datetime.strptime(p.strip(), '%I:%M %p').time() 
+                for p in time_text.split('—')
+            ]
 
         # Extract location
         if location_tag := article.find('div', class_='node-teaser__address-label'):
