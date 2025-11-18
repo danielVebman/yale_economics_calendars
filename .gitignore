@@ -1,2 +1,4 @@
+__pycache__/
 local_config.py
 calendars/
+html_template.html

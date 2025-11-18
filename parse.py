@@ -2,6 +2,7 @@ import datetime as dt
 from bs4 import BeautifulSoup
 import pandas as pd
 import regex as re
+from zoneinfo import ZoneInfo
 
 
 def extract_events(html_content: str) -> pd.DataFrame:
@@ -17,8 +18,9 @@ def extract_events(html_content: str) -> pd.DataFrame:
             'series': None,
             'date': None,
             'title': None,
-            'start_time': None,
-            'end_time': None,
+            'event_url': None,
+            'start_datetime': None,
+            'end_datetime': None,
             'location': None,
             'paper_url': None,
             'other_info': None
@@ -37,12 +39,23 @@ def extract_events(html_content: str) -> pd.DataFrame:
         # Extract title
         if title_tag := article.select_one('.node-teaser__heading a span'):
             data['title'] = title_tag.get_text(strip=True)
+        
+        # Extract event url
+        if event_url_tag := article.select_one('.node-teaser__heading a'):
+            if 'href' in event_url_tag.attrs:
+                data['event_url'] = event_url_tag['href']
+                if data['event_url'].startswith('/'):
+                    data['event_url'] = 'https://economics.yale.edu' + data['event_url']
 
         # Extract time
         if time_tag := article.find('div', class_='node-teaser__event-date-additional'):
+            tz = ZoneInfo("America/New_York")
             time_text = time_tag.get_text(strip=True).replace('Time:', '').strip()
-            data['start_time'], data['end_time'] = [
-                dt.datetime.strptime(p.strip(), '%I:%M %p').time() 
+            data['start_datetime'], data['end_datetime'] = [
+                dt.datetime.combine(
+                    data['date'], 
+                    dt.datetime.strptime(p.strip(), '%I:%M %p').time()
+                ).replace(tzinfo=tz)
                 for p in time_text.split('—')
             ]
 

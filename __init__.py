@@ -1,5 +1,7 @@
 from .fetch import fetch_and_save_events
-from .local_config import ECONOMETRICS_PROSPECTUS_LUNCH_SOURCE
+from .local_config import BASE_SOURCES
+from .website import update_website
 
-# if __name__ == '__main__':
-fetch_and_save_events(source=ECONOMETRICS_PROSPECTUS_LUNCH_SOURCE)
+for source in BASE_SOURCES:
+    fetch_and_save_events(source=source)
+update_website()
