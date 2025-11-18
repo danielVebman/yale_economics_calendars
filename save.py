@@ -9,25 +9,17 @@ from .source import Source
 
 def save_events(*, source: Source, events: pd.DataFrame) -> Path:
     '''
-    Saves the events DataFrame into CSV and ICS files named after the source.
+    Saves the events DataFrame into ICS files named after the source ID.
     Errors are thrown and should be handled upstream.
     '''
     base_path = Path(PRIVATE_OUTPUT_PATH)
     base_path.mkdir(parents=False, exist_ok=True)
     ics_path = base_path / (source.id + '.ics')
-    save_events_to_ics(events=events, file_path=ics_path)
+    save_events_to_ics(source=source, events=events, file_path=ics_path)
     return ics_path
 
 
-def save_events_to_csv(events: pd.DataFrame, file_path: str) -> None:
-    '''
-    Saves the events DataFrame to a CSV file at the specified file path.
-    Errors are thrown and should be handled upstream.
-    '''
-    events.to_csv(file_path, index=False)
-
-
-def save_events_to_ics(events: pd.DataFrame, file_path: str) -> None:
+def save_events_to_ics(*, source: Source, events: pd.DataFrame, file_path: str) -> None:
     """
     Saves the events DataFrame to an ICS file at the specified file path.
     Errors are thrown and should be handled upstream.
@@ -36,7 +28,7 @@ def save_events_to_ics(events: pd.DataFrame, file_path: str) -> None:
     cal.add('prodid', '-//Daniel Vebman - danielvebman.com//')
     cal.add('version', '2.0')
     cal.add('method', 'PUBLISH')
-    cal.add('X-WR-CALNAME', file_path.stem.replace('_', ' ').title())
+    cal.add('X-WR-CALNAME', source.name)
     cal.add('X-PUBLISHED-TTL', 'PT1H')
 
     for _, data in events.iterrows():
