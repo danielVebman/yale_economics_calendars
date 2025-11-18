@@ -1,9 +1,12 @@
 import datetime as dt
-import pathlib
+from pathlib import Path
+import typing as T
 import urllib
 from zoneinfo import ZoneInfo
 
-from .local_config import OUTPUT_PATH, PUBLIC_OUTPUT_PATH_BASE
+from .local_config import PRIVATE_OUTPUT_PATH, PUBLIC_OUTPUT_PATH
+from .source import Source
+from .utils import get_now
 
 
 def make_webcal_link(ics_url: str) -> str:
@@ -15,33 +18,27 @@ def make_ical_link(ics_url: str) -> str:
 
 
 def make_gcal_link(ics_url: str) -> str:
-    """
-    Convert a .ics URL to a Google Calendar subscription link.
-    Replaces https:// with webcal:// and URL-encodes it.
-    """
-    encoded_url = urllib.parse.quote(make_webcal_link(ics_url), safe='')
-    return f'https://calendar.google.com/calendar/r?cid={encoded_url}'
+    return f'https://calendar.google.com/calendar/r?cid={make_webcal_link(ics_url)}'
 
 
-def make_html_row(source_name: str) -> str:
-    ics_url = f'{PUBLIC_OUTPUT_PATH_BASE}{source_name}.ics'
+def make_html_row(*, source: Source) -> str:
+    ics_url = f'{PUBLIC_OUTPUT_PATH}{source.id}.ics'
     return (
         f'<li>'
         f'<a href="{make_ical_link(ics_url)}" class="external-link">iCal</a> | '
         f'<a href="{make_gcal_link(ics_url)}" class="external-link">Gcal</a> | '
-        f'{source_name.replace("_", " ").title()}'
+        f'<a href="{source.url}" class="external-link">{source.name}</a>'
         f'</li>'
     )
 
 
-def update_website():
+def update_website(sources: T.List[Source]) -> None:
     '''
-    Updates the index.html file listing all available calendars.
+    Updates the index.html file listing the `sources`.
     Errors are thrown and should be handled upstream.
     '''
-    base_path = pathlib.Path(OUTPUT_PATH)
-    index_path = base_path / 'index.html'
-    template_path = pathlib.Path(__file__).parent / 'html_template.html'
+    index_path = Path(PRIVATE_OUTPUT_PATH) / 'index.html'
+    template_path = Path(__file__).parent / 'html_template.html'
 
     with open(template_path, 'r') as f:
         template_html = f.read()
@@ -50,15 +47,12 @@ def update_website():
     indentation = ' ' * (list_location - line_location - 1)
 
     calendars_list_items = []
-    for file in base_path.iterdir():
-        if file.suffix != '.ics':
-            continue
-        source_name = file.stem
-        row = make_html_row(source_name)
+    for source in sources:
+        row = make_html_row(source=source)
         calendars_list_items.append(row if len(calendars_list_items) == 0 else indentation + row)
     calendars_list = '\n'.join(calendars_list_items)
 
-    now = dt.datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S')
+    now = get_now().strftime('%Y-%m-%d %H:%M:%S')
     final_html = (
         template_html
             .replace('{update_datetime}', now)

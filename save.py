@@ -1,21 +1,22 @@
 from datetime import datetime
 from icalendar import Calendar, Event
 import pandas as pd
-import pathlib
+from pathlib import Path
 
-from .local_config import OUTPUT_PATH
+from .local_config import PRIVATE_OUTPUT_PATH
 from .source import Source
 
 
-def save_events(*, source: Source, events: pd.DataFrame):
+def save_events(*, source: Source, events: pd.DataFrame) -> Path:
     '''
     Saves the events DataFrame into CSV and ICS files named after the source.
     Errors are thrown and should be handled upstream.
     '''
-    base_path = pathlib.Path(OUTPUT_PATH)
+    base_path = Path(PRIVATE_OUTPUT_PATH)
     base_path.mkdir(parents=False, exist_ok=True)
-    ics_path = base_path / (source.name + '.ics')
+    ics_path = base_path / (source.id + '.ics')
     save_events_to_ics(events=events, file_path=ics_path)
+    return ics_path
 
 
 def save_events_to_csv(events: pd.DataFrame, file_path: str) -> None:
