@@ -1,5 +1,8 @@
+import datetime as dt
 import pathlib
 import urllib
+from zoneinfo import ZoneInfo
+
 from .local_config import OUTPUT_PATH, PUBLIC_OUTPUT_PATH_BASE
 
 
@@ -55,7 +58,12 @@ def update_website():
         calendars_list_items.append(row if len(calendars_list_items) == 0 else indentation + row)
     calendars_list = '\n'.join(calendars_list_items)
 
-    final_html = template_html.replace('{calendars_list}', calendars_list)
+    now = dt.datetime.now(ZoneInfo("America/New_York")).strftime('%Y-%m-%d %H:%M:%S')
+    final_html = (
+        template_html
+            .replace('{update_datetime}', now)
+            .replace('{calendars_list}', calendars_list)
+    )
 
     with open(index_path, 'w') as f:
         f.write(final_html)

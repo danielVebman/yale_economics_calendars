@@ -14,9 +14,7 @@ def save_events(*, source: Source, events: pd.DataFrame):
     '''
     base_path = pathlib.Path(OUTPUT_PATH)
     base_path.mkdir(parents=False, exist_ok=True)
-    # csv_path = base_path / (source.name + '.csv')
     ics_path = base_path / (source.name + '.ics')
-    # save_events_to_csv(events=events, file_path=csv_path)
     save_events_to_ics(events=events, file_path=ics_path)
 
 
@@ -27,10 +25,6 @@ def save_events_to_csv(events: pd.DataFrame, file_path: str) -> None:
     '''
     events.to_csv(file_path, index=False)
 
-
-from icalendar import Calendar, Event
-from datetime import datetime
-import pandas as pd
 
 def save_events_to_ics(events: pd.DataFrame, file_path: str) -> None:
     """
