@@ -1,8 +1,9 @@
-import datetime as dt
 from bs4 import BeautifulSoup
+import datetime as dt
 import pandas as pd
 import regex as re
-from zoneinfo import ZoneInfo
+
+from .utils import ET
 
 
 def extract_events(html_content: str) -> pd.DataFrame:
@@ -49,13 +50,12 @@ def extract_events(html_content: str) -> pd.DataFrame:
 
         # Extract time
         if time_tag := article.find('div', class_='node-teaser__event-date-additional'):
-            tz = ZoneInfo("America/New_York")
             time_text = time_tag.get_text(strip=True).replace('Time:', '').strip()
             data['start_datetime'], data['end_datetime'] = [
                 dt.datetime.combine(
                     data['date'], 
                     dt.datetime.strptime(p.strip(), '%I:%M %p').time()
-                ).replace(tzinfo=tz)
+                ).replace(tzinfo=ET)
                 for p in time_text.split('—')
             ]
 

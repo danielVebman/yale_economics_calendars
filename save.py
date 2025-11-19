@@ -1,10 +1,10 @@
-from datetime import datetime
 from icalendar import Calendar, Event
 import pandas as pd
 from pathlib import Path
 
 from .local_config import PRIVATE_OUTPUT_PATH
 from .source import Source
+from .utils import logger
 
 
 def save_events(*, source: Source, events: pd.DataFrame) -> Path:
@@ -20,10 +20,12 @@ def save_events(*, source: Source, events: pd.DataFrame) -> Path:
 
 
 def save_events_to_ics(*, source: Source, events: pd.DataFrame, file_path: str) -> None:
-    """
+    '''
     Saves the events DataFrame to an ICS file at the specified file path.
     Errors are thrown and should be handled upstream.
-    """
+    '''
+    logger.debug(f'Writing calendar for {source.name}')
+
     cal = Calendar()
     cal.add('prodid', '-//Daniel Vebman - danielvebman.com//')
     cal.add('version', '2.0')
@@ -32,7 +34,9 @@ def save_events_to_ics(*, source: Source, events: pd.DataFrame, file_path: str) 
     cal.add('X-PUBLISHED-TTL', 'PT1H')
 
     for _, data in events.iterrows():
+        logger.debug(f'Found event: {data["title"]}')
         if pd.isna(data['start_datetime']) or pd.isna(data['end_datetime']):
+            logger.debug(f'Skipping event:\n{data}')
             continue
 
         evt = Event()
@@ -59,3 +63,4 @@ def save_events_to_ics(*, source: Source, events: pd.DataFrame, file_path: str) 
 
     with open(file_path, 'wb') as f:
         f.write(cal.to_ical())
+        logger.debug(f'Wrote {len(events)} events to {file_path}')
