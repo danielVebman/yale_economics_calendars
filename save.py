@@ -31,7 +31,7 @@ def save_events_to_ics(*, source: Source, events: pd.DataFrame, file_path: str) 
     cal.add('version', '2.0')
     cal.add('method', 'PUBLISH')
     cal.add('X-WR-CALNAME', source.name)
-    cal.add('X-PUBLISHED-TTL', 'PT1H')
+    cal.add('X-PUBLISHED-TTL', 'PT4H')
 
     for _, data in events.iterrows():
         logger.debug(f'Found event: {data["title"]}')

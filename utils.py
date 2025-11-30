@@ -30,7 +30,7 @@ def setup_logger(*, log_path=None, backup_count=7):
         utc=False
     )
 
-    fmt = "%(asctime)s | %(levelname)s | %(message)s"
+    fmt = '%(asctime)s | %(levelname)s | %(message)s'
     handler.setFormatter(ETFormatter(fmt))
 
     logger = logging.getLogger('economics_calendars')
