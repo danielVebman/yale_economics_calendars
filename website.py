@@ -25,7 +25,7 @@ def make_html_row(*, source: Source) -> str:
         f'<a class="icon-circle-link" aria-label="Apple Calendar" href="{make_ical_link(ics_url)}"><img src="/icons/apple.svg" alt="iCal"/></a>'
         f'<a class="icon-circle-link" aria-label="Google Calendar" href="{make_gcal_link(ics_url)}"><img src="/icons/gcal.svg" alt="Gcal"/></a>'
         f'<a class="icon-circle-link copy-link-btn" aria-label="WebCal ICS URL" href="{make_webcal_link(ics_url)}"><img src="/icons/link.svg" alt="WebCal ICS URL"/></a>'
-        f'<a href="{source.url}" class="external-link" style="padding-left: 10px">{source.name}</a>'
+        f'<a href="{source.url}" class="external-link">{source.name}</a>'
         f'</li>'
     )
 
