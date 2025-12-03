@@ -21,10 +21,12 @@ def make_gcal_link(ics_url: str) -> str:
 def make_html_row(*, source: Source) -> str:
     ics_url = f'{PUBLIC_OUTPUT_PATH}{source.id}.ics'
     return (
-        f'<li class="icon-row">'
+        f'<li class="calendar-item">'
+        f'<div class="icon-row">'
         f'<a class="icon-circle-link" aria-label="Apple Calendar" href="{make_ical_link(ics_url)}"><img src="/icons/apple.svg" alt="iCal"/></a>'
         f'<a class="icon-circle-link" aria-label="Google Calendar" href="{make_gcal_link(ics_url)}"><img src="/icons/gcal.svg" alt="Gcal"/></a>'
         f'<a class="icon-circle-link copy-link-btn" aria-label="WebCal ICS URL" href="{make_webcal_link(ics_url)}"><img src="/icons/link.svg" alt="WebCal ICS URL"/></a>'
+        f'</div>'
         f'<a href="{source.url}" class="external-link">{source.name}</a>'
         f'</li>'
     )
